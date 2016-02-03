@@ -104,13 +104,19 @@ class TaxDict(dict):
             # extract lineage according to given taxonomy
             lineage = [lineages[i][ranks[i].index(e)] if e in ranks[i] else ''
                        for e in self.taxonomy]
+            # find lowest tax rank present that is also in either the passed 
+            # taxonomy or the default taxonomy
+            for j in range(len(ranks[i])):
+                low_rank = ranks[i][-(j+1)]
+                if low_rank in taxonomy or low_rank in default_taxonomy:
+                    break
             # create taxref
-            taxref = TaxRef(ident=idents[i], rank=ranks[i][-1],
+            taxref = TaxRef(ident=idents[i], rank=low_rank,
                             taxonomy=self.taxonomy)
             # create key for ident and insert a dictionary of:
             #  lineage, taxref, cident, ident and rank
             self[idents[i]] = {'lineage': lineage, 'taxref': taxref,
-                               'cident': None, 'rank': ranks[i][-1],
+                               'cident': None, 'rank': low_rank,
                                'ident': lineage[taxref.level]}
         # add addtional optional slots from **kwargs
         self._additional(idents, kwargs)
